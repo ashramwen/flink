@@ -318,3 +318,47 @@ angular.module('flinkApp')
   loadMetrics() if $scope.nodeid
 
 # --------------------------------------
+
+.controller 'JobPlanWatermarksController', ($scope, $stateParams, MetricsService, $filter) ->
+  CURRENT_LOW_WATERMARK = '.currentLowWatermark';
+
+  $scope.jobid = $stateParams.jobid
+
+  getSubtasks = (parallelism) ->
+    $scope.subtasks = []
+    $scope.subtasks.push(i + CURRENT_LOW_WATERMARK) for i in [0...parallelism]
+
+  getWatermarks = () ->
+    $scope.job.vertices.forEach (vertex) ->
+      return if (!vertex.id)
+      getSubtasks vertex.parallelism
+      MetricsService.getOriginalMetrics($scope.jobid, vertex.id, $scope.subtasks).then (data) ->
+        if data.length == 0
+          vertex.watermarks = []
+          vertex.lowWatermark = undefined
+          updateGraphData(vertex.id, undefined)
+        else
+          vertex.watermarks = data
+          values = data.map (o) -> return parseInt(o.value)
+          vertex.lowWatermark = Math.min.apply(null, values)
+          updateGraphData(vertex.id, vertex.lowWatermark)
+        $scope.watermarks = vertex.watermarks if $scope.nodeid == vertex.id
+
+  getWatermarks()
+
+  updateGraphData = (vid, lowWatermark) ->
+    el = angular.element('.'+vid)
+    el.text($filter('watermark')(lowWatermark)) if el
+
+  $scope.changeNode = (vertex) ->
+    if vertex.id != $scope.nodeid
+      $scope.nodeid = vertex.id
+      $scope.watermarks = vertex.watermarks;
+    else
+      $scope.nodeid = null
+      $scope.watermarks = null
+
+  $scope.$on 'reload', (event) ->
+    getWatermarks() if $scope.jobid
+
+# --------------------------------------

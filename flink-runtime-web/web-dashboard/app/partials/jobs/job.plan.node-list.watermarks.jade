@@ -1,0 +1,18 @@
+table.table.table-body-hover.table-clickable.table-activable
+  thead
+    tr
+      th Name
+      th Parallelism
+      th Low Watermark
+      th Status
+
+  tbody(ng-repeat="v in job.vertices" ng-class="{ active: v.id == nodeid }" ng-click="changeNode(v)")
+    tr(ng-if="v.type == 'regular'")
+      td.td-long {{ v.name }}
+      td {{ v.parallelism }}
+      td {{ v.lowWatermark | watermark }}
+      td
+        bs-label(status="{{v.status}}") {{v.status}}
+    tr(ng-if="nodeid && v.id == nodeid")
+      td(colspan="4")
+        div(ng-include=" 'partials/jobs/job.plan.node.watermark.html' ")

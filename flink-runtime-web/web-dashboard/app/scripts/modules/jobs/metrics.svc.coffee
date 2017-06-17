@@ -182,11 +182,9 @@ angular.module('flinkApp')
 
   @getMetrics = (jobid, nodeid, metricIds) ->
     deferred = $q.defer()
+    self = this
 
-    ids = metricIds.join(",")
-
-    $http.get flinkConfig.jobServer + "jobs/" + jobid + "/vertices/" + nodeid + "/metrics?get=" + ids
-    .success (data) =>
+    @getOriginalMetrics(jobid, nodeid, metricIds).then (data) ->
       result = {}
       angular.forEach data, (v, k) ->
         result[v.id] = parseInt(v.value)
@@ -195,8 +193,19 @@ angular.module('flinkApp')
         timestamp: Date.now()
         values: result
       }
-      @saveValue(jobid, nodeid, newValue)
+      self.saveValue(jobid, nodeid, newValue)
       deferred.resolve(newValue)
+
+    deferred.promise
+
+  @getOriginalMetrics = (jobid, nodeid, metricIds) ->
+    deferred = $q.defer()
+
+    ids = metricIds.join(",")
+
+    $http.get flinkConfig.jobServer + "jobs/" + jobid + "/vertices/" + nodeid + "/metrics?get=" + ids
+    .success (data) =>
+      deferred.resolve(data)
 
     deferred.promise
 

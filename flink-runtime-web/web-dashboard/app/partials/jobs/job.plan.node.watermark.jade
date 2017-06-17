@@ -1,0 +1,10 @@
+table.table.table-hover.table-clickable.table-activable.table-inner(ng-if="watermarks")
+  thead
+    tr
+      th index
+      th Watermark
+
+  tbody
+    tr(ng-repeat="w in watermarks track by w.id")
+      td {{ $index }}
+      td {{ w.value | watermark }}

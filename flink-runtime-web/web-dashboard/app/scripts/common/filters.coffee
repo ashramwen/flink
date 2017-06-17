@@ -81,3 +81,10 @@ angular.module('flinkApp')
 
 .filter "percentage", ->
   (number) -> (number * 100).toFixed(0) + '%'
+
+.filter "watermark", ->
+  MIN_LONG = '-9223372036854775808';
+  (val) ->
+    if !val or val == MIN_LONG or val == parseInt(MIN_LONG)
+      return 'No watermark'
+    return val

@@ -1,0 +1,15 @@
+
+<table ng-if="watermarks" class="table table-hover table-clickable table-activable table-inner">
+  <thead>
+    <tr>
+      <th>index</th>
+      <th>Watermark</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="w in watermarks track by w.id">
+      <td>{{ $index }}</td>
+      <td>{{ w.value | watermark }}</td>
+    </tr>
+  </tbody>
+</table>
